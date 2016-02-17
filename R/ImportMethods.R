@@ -7,7 +7,7 @@ def=function(object, sequencingQualityThreshold = 10, mappingQualityThreshold = 
 
 setMethod("getCTSS",
 signature(object = "CAGEset"),
-function (object, sequencingQualityThreshold = 10, mappingQualityThreshold = 20, removeFirstG = TRUE, correctSystematicG = TRUE, chrConvert = TRUE){
+function (object, sequencingQualityThreshold = 10, mappingQualityThreshold = 20, removeFirstG = TRUE, correctSystematicG = TRUE){
 
 	if(!is(object,"CAGEset")){
 		stop("Need to initialize the CAGEset object")
@@ -30,7 +30,8 @@ function (object, sequencingQualityThreshold = 10, mappingQualityThreshold = 20,
 		}else{
 			genome <- get(ls(paste("package:", reference.genome, sep="")))
 		}
-		seqnames(genome) <- ifelse(chrConvert != FALSE, gsub("chr","",seqnames(genome) ), seqnames(genome))
+
+		seqnames(genome) <- gsub("chr","",seqnames(genome) )
 
 		bam.files <- inputFiles(object)
 

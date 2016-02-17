@@ -4,9 +4,9 @@ Version: 1.13.1
 Date: 11-02-2016
 Author: Vanja Haberle, Department of Biology, University of Bergen, Norway <vanja.haberle@gmail.com>
 Maintainer: Vanja Haberle <vanja.haberle@gmail.com>
-Imports: utils, Rsamtools, GenomicRanges (>= 1.23.16), IRanges (>= 2.5.27), data.table, beanplot, rtracklayer, som, VGAM
+Imports: utils, Rsamtools, GenomicRanges , IRanges, data.table, beanplot, rtracklayer, som, VGAM
 Depends: methods, R (>= 2.15.0), BSgenome
-Suggests: BSgenome.Drerio.UCSC.danRer7, FANTOM3and4CAGE 
+Suggests: BSgenome.Drerio.UCSC.danRer7, FANTOM3and4CAGE
 Enhances: parallel
 Description: Preprocessing of CAGE sequencing data, identification and normalization of transcription start sites and downstream analysis of transcription start sites clusters (promoters).
 License: GPL-3
