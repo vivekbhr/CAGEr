@@ -1,13 +1,15 @@
 setGeneric(
 name="getCTSS",
-def=function(object, sequencingQualityThreshold = 10, mappingQualityThreshold = 20, removeFirstG = TRUE, correctSystematicG = TRUE){
+def=function(object, sequencingQualityThreshold = 10, mappingQualityThreshold = 20, removeFirstG = TRUE, 
+		 correctSystematicG = TRUE, chrConvert = TRUE){
 	standardGeneric("getCTSS")
 }
 )
 
 setMethod("getCTSS",
 signature(object = "CAGEset"),
-function (object, sequencingQualityThreshold = 10, mappingQualityThreshold = 20, removeFirstG = TRUE, correctSystematicG = TRUE){
+function (object, sequencingQualityThreshold = 10, mappingQualityThreshold = 20, removeFirstG = TRUE, 
+	    correctSystematicG = TRUE, chrConvert = TRUE){
 
 	if(!is(object,"CAGEset")){
 		stop("Need to initialize the CAGEset object")
@@ -31,7 +33,7 @@ function (object, sequencingQualityThreshold = 10, mappingQualityThreshold = 20,
 			genome <- get(ls(paste("package:", reference.genome, sep="")))
 		}
 
-		seqnames(genome) <- gsub("chr","",seqnames(genome) )
+		if(chrConvert == TRUE) seqnames(genome) = gsub("chr","",seqnames(genome) )
 
 		bam.files <- inputFiles(object)
 
@@ -49,23 +51,27 @@ function (object, sequencingQualityThreshold = 10, mappingQualityThreshold = 20,
 			message("\nReading in file: ", bam.files[i], "...")
 
 			what <- c("rname", "strand", "pos", "qwidth", "seq", "qual", "mapq")
-			param <- ScanBamParam(what = what, flag = scanBamFlag(isUnmappedQuery = FALSE))
+			param <- ScanBamParam(what = what, flag = scanBamFlag(isUnmappedQuery = FALSE) )
 			bam <- scanBam(bam.files[i], param = param)
 
 			message("\t-> Filtering out low quality reads...")
 
 			qual <- bam[[1]]$qual
-
-			if(length(unique(width(qual)) != 1)){
-				uniq.quals <- unique(width(qual))
-				quals.list <- lapply(as.list(uniq.quals), function(x) {idx <- width(qual) == x; q.m <- as(qual[idx], "matrix"); q.avg <- as.integer(rowMeans(q.m)); return(list(idx, q.avg))})
-				qa.avg <- unlist(lapply(quals.list, function(x) {return(x[[2]])}))
-				idx <- unlist(lapply(quals.list, function(x) {return(which(x[[1]]))}))
-				qa.avg <- qa.avg[order(idx)]
-			}else{
-				qa <- as(qual, "matrix")
-				qa.avg <- as.integer(rowMeans(qa))
-			}
+				if(length(unique(width(qual)) != 1)){
+					uniq.quals <- unique(width(qual))
+					quals.list <- lapply(as.list(uniq.quals), function(x) {
+						idx <- width(qual) == x;
+						q.m <- as.matrix(as.data.frame(qual[idx])); 
+						q.avg <- as.integer(rowMeans(q.m)); 
+						return(list(idx, q.avg))
+						})
+					qa.avg <- unlist(lapply(quals.list, function(x) {return(x[[2]])}))
+					idx <- unlist(lapply(quals.list, function(x) {return(which(x[[1]]))}))
+					qa.avg <- qa.avg[order(idx)]
+				}else{
+					qa <- as.matrix(as.data.frame(qual))
+					qa.avg <- as.integer(rowMeans(qa))
+				}
 
 			reads.GRanges <- GRanges(seqnames = as.vector(bam[[1]]$rname), IRanges(start = bam[[1]]$pos, width = width(bam[[1]]$seq)), strand = bam[[1]]$strand, qual = qa.avg, mapq = bam[[1]]$mapq, seq = bam[[1]]$seq, read.length = width(bam[[1]]$seq))
 			reads.GRanges <- reads.GRanges[seqnames(reads.GRanges) %in% seqnames(genome)]
