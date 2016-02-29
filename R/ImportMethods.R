@@ -61,7 +61,7 @@ function (object, sequencingQualityThreshold = 10, mappingQualityThreshold = 20,
 					uniq.quals <- unique(width(qual))
 					quals.list <- lapply(as.list(uniq.quals), function(x) {
 						idx <- width(qual) == x;
-						q.m <- as.matrix(as.data.frame(qual[idx])); 
+						q.m <- as(qual[idx], "matrix"); 
 						q.avg <- as.integer(rowMeans(q.m)); 
 						return(list(idx, q.avg))
 						})
@@ -69,7 +69,7 @@ function (object, sequencingQualityThreshold = 10, mappingQualityThreshold = 20,
 					idx <- unlist(lapply(quals.list, function(x) {return(which(x[[1]]))}))
 					qa.avg <- qa.avg[order(idx)]
 				}else{
-					qa <- as.matrix(as.data.frame(qual))
+					qa <- as(qual,"matrix")
 					qa.avg <- as.integer(rowMeans(qa))
 				}
 
